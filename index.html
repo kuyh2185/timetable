@@ -1,0 +1,1056 @@
+<!doctype html>
+<html lang="ko">
+<head><meta charset="UTF-8"><title>공대 시간표</title><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Do+Hyeon&family=Noto+Sans+KR:wght@400;500;700;900&display=swap"><style>:root{
+  --bg:#eef1f4;
+  --surface:#ffffff;
+  --surface-2:#e3e7ec;
+  --surface-3:#d7dce3;
+  --border:#cdd3db;
+  --text:#1c2130;
+  --text-dim:#5b6373;
+  --accent:#b8842e;
+  --accent-strong:#96691f;
+  --accent-ink:#ffffff;
+  --heat-low:#cfe0ee;
+  --heat-high:#d8672e;
+  --full-ring:#b8842e;
+  --danger:#b3432f;
+  --shadow:0 1px 2px rgba(28,33,48,.06),0 8px 24px -12px rgba(28,33,48,.18);
+  --radius-lg:18px;
+  --radius-md:12px;
+  --radius-sm:8px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#12141c;
+    --surface:#1b1e2a;
+    --surface-2:#242838;
+    --surface-3:#2e3448;
+    --border:#333850;
+    --text:#e9e7df;
+    --text-dim:#9497ab;
+    --accent:#d7a339;
+    --accent-strong:#f0c063;
+    --accent-ink:#1c1404;
+    --heat-low:#28394c;
+    --heat-high:#e8703a;
+    --full-ring:#d7a339;
+    --danger:#e2725a;
+    --shadow:0 1px 2px rgba(0,0,0,.3),0 12px 28px -14px rgba(0,0,0,.6);
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#12141c;
+  --surface:#1b1e2a;
+  --surface-2:#242838;
+  --surface-3:#2e3448;
+  --border:#333850;
+  --text:#e9e7df;
+  --text-dim:#9497ab;
+  --accent:#d7a339;
+  --accent-strong:#f0c063;
+  --accent-ink:#1c1404;
+  --heat-low:#28394c;
+  --heat-high:#e8703a;
+  --full-ring:#d7a339;
+  --danger:#e2725a;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 12px 28px -14px rgba(0,0,0,.6);
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:'Noto Sans KR',-apple-system,'Malgun Gothic',sans-serif;
+  font-variant-numeric:tabular-nums;
+  -webkit-font-smoothing:antialiased;
+  padding-inline:16px;
+  padding-block:0 40px;
+  min-height:100vh;
+}
+.wrap{max-width:760px;margin:0 auto;}
+.topbar{
+  position:sticky;top:0;z-index:20;
+  background:var(--bg);
+  padding-block:14px 8px;
+  display:flex;flex-direction:column;gap:10px;
+  border-bottom:1px solid transparent;
+}
+.topbar-row{display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap;}
+.brand{
+  font-family:'Do Hyeon',sans-serif;
+  font-size:28px;
+  letter-spacing:.3px;
+  color:var(--text);
+  display:flex;align-items:center;gap:8px;
+  text-rendering:optimizeLegibility;
+  -webkit-font-smoothing:auto;
+}
+.brand .torch{color:var(--accent);}
+.namebox{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text-dim);}
+.namebox b{color:var(--text);font-weight:700;}
+.linklike{
+  background:none;border:none;color:var(--accent-strong);font-weight:600;
+  cursor:pointer;font-size:13px;padding:2px 4px;font-family:inherit;
+  text-decoration:underline;text-underline-offset:2px;
+}
+.linklike:hover{opacity:.8;}
+.confirmed-banner{
+  background:linear-gradient(135deg,var(--accent) 0%,var(--accent-strong) 100%);
+  color:var(--accent-ink);
+  border-radius:var(--radius-md);
+  padding:12px 16px;
+  display:flex;align-items:center;gap:10px;
+  font-weight:700;
+  box-shadow:var(--shadow);
+}
+.confirmed-banner .tag{font-size:11px;font-weight:700;letter-spacing:.06em;opacity:.85;text-transform:uppercase;}
+.confirmed-banner .slot{font-size:18px;font-family:'Do Hyeon',sans-serif;letter-spacing:.2px;text-rendering:optimizeLegibility;-webkit-font-smoothing:auto;}
+.tabs{display:flex;gap:6px;border-bottom:1px solid var(--border);}
+.tab-btn{
+  appearance:none;border:none;background:none;font-family:inherit;
+  color:var(--text-dim);font-size:14px;font-weight:600;
+  padding:10px 14px;cursor:pointer;position:relative;
+  border-radius:var(--radius-sm) var(--radius-sm) 0 0;
+  display:flex;align-items:center;gap:6px;
+}
+.tab-btn:hover{color:var(--text);background:var(--surface-2);}
+.tab-btn.active{color:var(--text);}
+.tab-btn.active::after{
+  content:"";position:absolute;left:8px;right:8px;bottom:-1px;height:2px;
+  background:var(--accent);border-radius:2px;
+}
+.tab-btn .dot{width:7px;height:7px;border-radius:50%;background:var(--accent);display:inline-block;}
+main{padding-block:18px;}
+.card{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:var(--radius-lg);
+  padding:18px;
+  box-shadow:var(--shadow);
+}
+.card + .card{margin-top:14px;}
+h2.section-title{
+  font-family:'Do Hyeon',sans-serif;
+  font-size:20px;font-weight:400;letter-spacing:.1px;margin:0 0 4px;
+  text-rendering:optimizeLegibility;-webkit-font-smoothing:auto;
+}
+p.hint{color:var(--text-dim);font-size:13.5px;line-height:1.55;margin:0 0 14px;}
+.name-gate{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  text-align:center;gap:14px;padding:48px 16px 56px;
+}
+.name-gate .brand{font-size:34px;}
+.name-gate p{color:var(--text-dim);font-size:14.5px;max-width:32ch;line-height:1.6;margin:0;}
+.name-form{display:flex;gap:8px;margin-top:6px;width:100%;max-width:320px;}
+input[type="text"]{
+  flex:1;min-width:0;
+  border:1px solid var(--border);
+  background:var(--surface-2);
+  color:var(--text);
+  border-radius:var(--radius-sm);
+  padding:10px 12px;
+  font-size:15px;
+  font-family:inherit;
+}
+input[type="text"]:focus{outline:2px solid var(--accent);outline-offset:1px;}
+.btn{
+  appearance:none;border:none;cursor:pointer;font-family:inherit;
+  font-weight:700;font-size:14.5px;border-radius:var(--radius-sm);
+  padding:10px 18px;transition:transform .08s ease, opacity .15s ease;
+}
+.btn:active{transform:scale(.97);}
+.btn[disabled]{opacity:.55;cursor:default;transform:none;}
+.btn-primary{background:var(--accent);color:var(--accent-ink);}
+.btn-primary:hover:not([disabled]){background:var(--accent-strong);}
+.btn-ghost{background:var(--surface-2);color:var(--text);border:1px solid var(--border);}
+.btn-ghost:hover:not([disabled]){background:var(--surface-3);}
+.btn-danger-ghost{background:none;color:var(--danger);border:1px solid var(--border);}
+.btn-block{width:100%;}
+.row-between{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;}
+.grid-scroll{overflow-x:auto;}
+.grid{
+  display:grid;
+  grid-template-columns:44px repeat(7,1fr);
+  gap:4px;
+  user-select:none;
+  min-width:360px;
+}
+.g-corner{}
+.g-daylabel{
+  font-size:12px;font-weight:700;color:var(--text-dim);
+  text-align:center;padding-block:4px;
+}
+.g-hourlabel{
+  font-size:11px;color:var(--text-dim);
+  display:flex;align-items:center;justify-content:flex-end;
+  padding-right:5px;
+  font-variant-numeric:tabular-nums;
+}
+.g-cell{
+  height:34px;border-radius:5px;background:var(--surface-2);
+  border:1px solid var(--border);cursor:pointer;position:relative;
+}
+.g-cell:hover{border-color:var(--accent);}
+.g-cell.selected{background:var(--accent);border-color:var(--accent-strong);}
+.g-cell.candidate{outline:2px solid var(--full-ring);outline-offset:-2px;}
+.g-cell .full-mark{
+  position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  font-size:10px;color:var(--accent-ink);
+}
+.legend{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text-dim);margin-top:12px;flex-wrap:wrap;}
+.legend-bar{
+  height:10px;width:120px;border-radius:6px;
+  background:linear-gradient(90deg,var(--surface-2),var(--heat-low),var(--heat-high));
+  border:1px solid var(--border);
+}
+.chiprow{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px;}
+.chip{
+  background:var(--surface-2);border:1px solid var(--border);
+  border-radius:999px;padding:4px 10px;font-size:12.5px;color:var(--text);
+}
+.chip.me{background:var(--accent);color:var(--accent-ink);border-color:var(--accent-strong);font-weight:700;}
+.note-field{margin-top:14px;}
+.note-field label{
+  display:block;font-size:12.5px;font-weight:700;color:var(--text-dim);
+  margin-bottom:6px;
+}
+textarea.note-input{
+  width:100%;resize:vertical;min-height:56px;
+  border:1px solid var(--border);background:var(--surface-2);color:var(--text);
+  border-radius:var(--radius-sm);padding:9px 11px;font-size:13.5px;
+  font-family:inherit;line-height:1.5;
+}
+textarea.note-input:focus{outline:2px solid var(--accent);outline-offset:1px;}
+.people-list{display:flex;flex-direction:column;gap:8px;margin-top:10px;}
+.person-row{
+  display:flex;gap:10px;align-items:flex-start;
+  background:var(--surface-2);border:1px solid var(--border);
+  border-radius:var(--radius-sm);padding:9px 12px;
+}
+.person-row .chip{flex-shrink:0;margin-top:1px;}
+.person-row .note-text{font-size:13px;color:var(--text-dim);line-height:1.5;word-break:break-word;}
+.person-row .note-text.empty{opacity:.55;font-style:italic;}
+.empty-note{
+  text-align:center;color:var(--text-dim);font-size:13.5px;
+  padding:20px 10px;border:1px dashed var(--border);border-radius:var(--radius-md);
+}
+.tooltip-panel{
+  margin-top:12px;padding:10px 12px;background:var(--surface-2);
+  border-radius:var(--radius-sm);font-size:13px;color:var(--text);
+  min-height:20px;
+}
+.tooltip-panel .cnt{font-weight:700;color:var(--accent-strong);}
+.cand-list{display:flex;flex-direction:column;gap:8px;margin-top:6px;}
+.cand-row{
+  display:flex;align-items:center;gap:10px;background:var(--surface-2);
+  border:1px solid var(--border);border-radius:var(--radius-sm);padding:9px 12px;
+}
+.cand-row .label{width:96px;flex-shrink:0;font-weight:700;font-size:13.5px;}
+.cand-bar-track{flex:1;height:10px;background:var(--surface-3);border-radius:6px;overflow:hidden;}
+.cand-bar-fill{height:100%;background:var(--accent);border-radius:6px;}
+.cand-row .count{width:52px;text-align:right;font-size:12.5px;color:var(--text-dim);flex-shrink:0;}
+.cand-row input[type="checkbox"]{width:18px;height:18px;accent-color:var(--accent);flex-shrink:0;}
+.cand-row .finalize-btn{flex-shrink:0;}
+label.check-row{display:flex;align-items:center;gap:10px;cursor:pointer;flex:1;min-width:0;}
+.toast{
+  position:fixed;left:50%;bottom:22px;transform:translateX(-50%);
+  background:var(--text);color:var(--bg);
+  padding:10px 18px;border-radius:999px;font-size:13.5px;font-weight:600;
+  box-shadow:var(--shadow);z-index:50;max-width:90vw;text-align:center;
+}
+.spinner{
+  width:14px;height:14px;border-radius:50%;
+  border:2px solid rgba(0,0,0,.25);border-top-color:currentColor;
+  display:inline-block;animation:spin .7s linear infinite;
+  vertical-align:-2px;margin-right:6px;
+}
+@keyframes spin{to{transform:rotate(360deg);}}
+@media (prefers-reduced-motion: reduce){
+  .spinner{animation:none;}
+}
+.rankbox{display:flex;flex-direction:column;gap:6px;margin-top:8px;}
+.rank-item{display:flex;justify-content:space-between;font-size:13.5px;padding:6px 10px;background:var(--surface-2);border-radius:var(--radius-sm);}
+.rank-item b{color:var(--accent-strong);}
+@media (max-width:420px){
+  .brand{font-size:22px;}
+  .cand-row .label{width:78px;font-size:12.5px;}
+  .grid{grid-template-columns:36px repeat(7,1fr);}
+  .g-hourlabel{font-size:9.5px;padding-right:3px;}
+  .g-cell{height:30px;}
+}
+</style></head>
+<body>
+<div id="toast" class="toast" hidden></div>
+<div id="app"></div>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js";
+import {
+  getFirestore, doc, setDoc, deleteDoc, updateDoc, onSnapshot,
+  collection, serverTimestamp, deleteField
+} from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
+
+var firebaseConfig = {
+  apiKey: "AIzaSyDAeJ4q3ErtndQFlDl7RVpbo1CTgFWFgdE",
+  authDomain: "timetable-a23fa.firebaseapp.com",
+  projectId: "timetable-a23fa",
+  storageBucket: "timetable-a23fa.firebasestorage.app",
+  messagingSenderId: "846676457705",
+  appId: "1:846676457705:web:2d451d536327d209af1878"
+};
+var fbApp = initializeApp(firebaseConfig);
+var db = getFirestore(fbApp);
+
+(function(){
+"use strict";
+
+var DAYS = ["월","화","수","목","금","토","일"];
+var HOUR_STEP = 2;
+var BLOCKS = 24 / HOUR_STEP;
+var NAME_KEY = "raidPlannerName_v1";
+var DRAFT_PREFIX = "raidPlannerDraft_v2:";
+
+function slotId(d,h){ return "d" + d + "h" + h; }
+function parseSlot(id){
+  var m = /^d(\d+)h(\d+)$/.exec(id);
+  if(!m) return null;
+  return { d: parseInt(m[1],10), h: parseInt(m[2],10) };
+}
+function normalizeSlot(id){
+  var p = parseSlot(id);
+  if(!p) return null;
+  var h2 = Math.floor(p.h / HOUR_STEP) * HOUR_STEP;
+  return slotId(p.d, h2);
+}
+function normalizeSlotList(list){
+  var seen = {};
+  var out = [];
+  (list||[]).forEach(function(id){
+    var n = normalizeSlot(id);
+    if(n && !seen[n]){ seen[n] = true; out.push(n); }
+  });
+  return out;
+}
+function formatSlot(id){
+  var p = parseSlot(id);
+  if(!p) return id;
+  return DAYS[p.d] + "요일 " + p.h + "~" + (p.h + HOUR_STEP) + "시";
+}
+function escapeHtml(s){
+  return String(s == null ? "" : s).replace(/[&<>"']/g, function(c){
+    return c === "&" ? "&amp;" : c === "<" ? "&lt;" : c === ">" ? "&gt;" : c === '"' ? "&quot;" : "&#39;";
+  });
+}
+function sanitizeName(name){
+  name = (name || "").trim().slice(0,24);
+  name = name.replace(/[\/\.\[\]\*`]/g, "");
+  return name;
+}
+
+var STATE = { people: {}, vote: null };
+var myName = null;
+try{ myName = localStorage.getItem(NAME_KEY); }catch(e){ myName = null; }
+
+var currentTab = "input";
+var isSaving = false;
+var draftSlots = [];
+var draftNote = "";
+var candidatePickerOpen = false;
+var candidateDraft = [];
+var hoverInfoHtml = "";
+var connError = false;
+
+function participantNames(){ return Object.keys(STATE.people || {}); }
+function participantCount(){ return participantNames().length; }
+
+function countsPerSlot(){
+  var counts = {};
+  var names = participantNames();
+  for(var i=0;i<names.length;i++){
+    var slots = (STATE.people[names[i]] && STATE.people[names[i]].slots) || [];
+    for(var j=0;j<slots.length;j++){
+      counts[slots[j]] = (counts[slots[j]] || 0) + 1;
+    }
+  }
+  return counts;
+}
+
+function namesForSlot(slot){
+  var names = participantNames();
+  var out = [];
+  for(var i=0;i<names.length;i++){
+    var slots = (STATE.people[names[i]] && STATE.people[names[i]].slots) || [];
+    if(slots.indexOf(slot) !== -1) out.push(names[i]);
+  }
+  return out;
+}
+
+function lerp(a,b,t){ return Math.round(a + (b-a)*t); }
+function hexToRgb(hex){
+  hex = hex.replace("#","");
+  return [parseInt(hex.substring(0,2),16), parseInt(hex.substring(2,4),16), parseInt(hex.substring(4,6),16)];
+}
+function heatColor(t, lowHex, highHex){
+  var lo = hexToRgb(lowHex), hi = hexToRgb(highHex);
+  var r = lerp(lo[0],hi[0],t), g = lerp(lo[1],hi[1],t), b = lerp(lo[2],hi[2],t);
+  return "rgb(" + r + "," + g + "," + b + ")";
+}
+function cssVar(name){
+  return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+}
+
+function draftKey(){ return DRAFT_PREFIX + (myName || ""); }
+function noteDraftKey(){ return DRAFT_PREFIX + "note:" + (myName || ""); }
+function loadDraft(){
+  try{
+    var raw = sessionStorage.getItem(draftKey());
+    if(raw){ return JSON.parse(raw); }
+  }catch(e){}
+  var mine = (STATE.people[myName] && STATE.people[myName].slots) || [];
+  return mine.slice();
+}
+function loadDraftNote(){
+  try{
+    var raw = sessionStorage.getItem(noteDraftKey());
+    if(raw !== null){ return raw; }
+  }catch(e){}
+  return (STATE.people[myName] && STATE.people[myName].note) || "";
+}
+function saveDraftLocal(){
+  try{ sessionStorage.setItem(draftKey(), JSON.stringify(draftSlots)); }catch(e){}
+}
+function saveDraftNoteLocal(){
+  try{ sessionStorage.setItem(noteDraftKey(), draftNote); }catch(e){}
+}
+function clearDraftLocal(){
+  try{ sessionStorage.removeItem(draftKey()); }catch(e){}
+  try{ sessionStorage.removeItem(noteDraftKey()); }catch(e){}
+}
+
+var toastTimer = null;
+function showToast(msg){
+  var t = document.getElementById("toast");
+  if(!t) return;
+  t.textContent = msg;
+  t.hidden = false;
+  if(toastTimer) clearTimeout(toastTimer);
+  toastTimer = setTimeout(function(){ t.hidden = true; }, 3200);
+}
+
+/* ---------- Firestore live sync ---------- */
+onSnapshot(collection(db,"people"), function(snap){
+  var next = {};
+  snap.forEach(function(d){
+    var data = d.data() || {};
+    next[d.id] = { slots: normalizeSlotList(data.slots), note: data.note || "" };
+  });
+  STATE.people = next;
+  connError = false;
+  render();
+}, function(err){
+  console.error("people snapshot error", err);
+  connError = true;
+  render();
+});
+
+onSnapshot(doc(db,"meta","vote"), function(snap){
+  if(snap.exists()){
+    var v = snap.data();
+    STATE.vote = {
+      candidates: normalizeSlotList(v.candidates),
+      ballots: v.ballots || {},
+      finalized: v.finalized || null
+    };
+    Object.keys(STATE.vote.ballots).forEach(function(n){
+      STATE.vote.ballots[n] = normalizeSlotList(STATE.vote.ballots[n]);
+    });
+    if(STATE.vote.finalized && STATE.vote.finalized.slot){
+      STATE.vote.finalized.slot = normalizeSlot(STATE.vote.finalized.slot);
+    }
+  }else{
+    STATE.vote = null;
+  }
+  render();
+}, function(err){
+  console.error("vote snapshot error", err);
+});
+
+function setTab(tab){
+  currentTab = tab;
+  candidatePickerOpen = false;
+  hoverInfoHtml = "";
+  render();
+}
+
+function onNameSubmit(name){
+  name = sanitizeName(name);
+  if(!name) return;
+  myName = name;
+  try{ localStorage.setItem(NAME_KEY, name); }catch(e){}
+  draftSlots = loadDraft();
+  draftNote = loadDraftNote();
+  render();
+}
+
+function onChangeName(){
+  myName = null;
+  try{ localStorage.removeItem(NAME_KEY); }catch(e){}
+  render();
+}
+
+function toggleDraftSlot(slot, forceState){
+  var idx = draftSlots.indexOf(slot);
+  var willSelect = forceState !== undefined ? forceState : idx === -1;
+  if(willSelect && idx === -1) draftSlots.push(slot);
+  if(!willSelect && idx !== -1) draftSlots.splice(idx,1);
+  saveDraftLocal();
+}
+
+function bindGridDrag(gridEl, onToggle){
+  var down = false;
+  var mode = true;
+  function cellFromEvent(ev){
+    var target = ev.target.closest ? ev.target.closest(".g-cell") : null;
+    return target;
+  }
+  gridEl.addEventListener("mousedown", function(ev){
+    var cell = cellFromEvent(ev);
+    if(!cell) return;
+    down = true;
+    var slot = cell.getAttribute("data-slot");
+    mode = !cell.classList.contains("selected");
+    onToggle(slot, mode, cell);
+    ev.preventDefault();
+  });
+  gridEl.addEventListener("mouseover", function(ev){
+    if(!down) return;
+    var cell = cellFromEvent(ev);
+    if(!cell) return;
+    var slot = cell.getAttribute("data-slot");
+    onToggle(slot, mode, cell);
+  });
+  window.addEventListener("mouseup", function(){ down = false; });
+  gridEl.addEventListener("click", function(ev){
+    var cell = cellFromEvent(ev);
+    if(!cell) return;
+    if(cell.getAttribute("data-touch-handled") === "1"){
+      cell.removeAttribute("data-touch-handled");
+      return;
+    }
+  });
+  gridEl.addEventListener("touchstart", function(ev){
+    var cell = cellFromEvent(ev);
+    if(!cell) return;
+    cell.setAttribute("data-touch-handled","1");
+    var slot = cell.getAttribute("data-slot");
+    var willSelect = !cell.classList.contains("selected");
+    onToggle(slot, willSelect, cell);
+  }, {passive:true});
+}
+
+function renderGridMarkup(opts){
+  var html = '<div class="grid-scroll"><div class="grid" id="' + opts.id + '">';
+  html += '<div class="g-corner"></div>';
+  for(var d=0; d<7; d++){
+    html += '<div class="g-daylabel">' + DAYS[d] + '</div>';
+  }
+  for(var bi=0; bi<BLOCKS; bi++){
+    var h = bi * HOUR_STEP;
+    html += '<div class="g-hourlabel">' + h + '~' + (h+HOUR_STEP) + '</div>';
+    for(var d2=0; d2<7; d2++){
+      var id = slotId(d2,h);
+      var cls = "g-cell";
+      var style = "";
+      var inner = "";
+      var title = "";
+      var extra = opts.cellDecorator(id);
+      if(extra.className) cls += " " + extra.className;
+      if(extra.style) style = extra.style;
+      if(extra.inner) inner = extra.inner;
+      if(extra.title) title = extra.title;
+      html += '<div class="' + cls + '" data-slot="' + id + '" style="' + style + '" title="' + escapeHtml(title) + '">' + inner + '</div>';
+    }
+  }
+  html += '</div></div>';
+  return html;
+}
+
+function renderTopbar(){
+  var html = '<div class="topbar-row">';
+  html += '<div class="brand"><span class="torch">⚔</span>공대 시간표</div>';
+  if(myName){
+    html += '<div class="namebox">참가자 <b>' + escapeHtml(myName) + '</b> &nbsp;<button class="linklike" data-action="change-name">이름 변경</button></div>';
+  }
+  html += '</div>';
+  if(connError){
+    html += '<div class="confirmed-banner" style="background:var(--danger-bg,#fdecea);"><div><div class="tag">연결 문제</div><div class="slot" style="font-size:14px;">실시간 연결이 끊겼어요. 인터넷 상태를 확인해주세요.</div></div></div>';
+  }
+  if(STATE.vote && STATE.vote.finalized){
+    html += '<div class="confirmed-banner"><div><div class="tag">확정된 레이드 시간</div><div class="slot">' + escapeHtml(formatSlot(STATE.vote.finalized.slot)) + '</div></div></div>';
+  }
+  html += '<div class="tabs">';
+  html += tabBtn("input","내 시간 입력");
+  html += tabBtn("heat","종합 현황");
+  var voteDot = STATE.vote && !STATE.vote.finalized ? '<span class="dot"></span>' : "";
+  html += tabBtn("vote","투표", voteDot);
+  html += '</div>';
+  return html;
+}
+function tabBtn(id,label,extra){
+  var active = currentTab === id ? " active" : "";
+  return '<button class="tab-btn' + active + '" data-action="set-tab" data-tab="' + id + '">' + label + (extra||"") + '</button>';
+}
+
+function renderNameGate(){
+  return '<div class="wrap"><div class="name-gate">'
+    + '<div class="brand">⚔ 공대 시간표</div>'
+    + '<p>레이드 가능한 시간을 체크하고, 공대원들과 겹치는 시간을 한눈에 확인해보세요. 먼저 표시할 이름을 입력해주세요.</p>'
+    + '<form class="name-form" id="name-form">'
+    + '<input type="text" id="name-input" placeholder="예: 물약장인" maxlength="24" autocomplete="off">'
+    + '<button type="submit" class="btn btn-primary">확인</button>'
+    + '</form>'
+    + '</div></div>';
+}
+
+function renderInputTab(){
+  var html = '<div class="card">';
+  html += '<h2 class="section-title">시간표</h2>';
+  html += '<p class="hint">칸을 클릭하거나 드래그하면 선택돼요. 모바일에서는 한 칸씩 눌러서 선택하세요. 다 고르면 아래 저장 버튼을 눌러주세요.</p>';
+  html += renderGridMarkup({
+    id: "input-grid",
+    cellDecorator: function(id){
+      var selected = draftSlots.indexOf(id) !== -1;
+      return { className: selected ? "selected" : "" };
+    }
+  });
+  html += '<div class="note-field">';
+  html += '<label for="note-input">특이사항 (선택)</label>';
+  html += '<textarea class="note-input" id="note-input" maxlength="200" placeholder="예: 5분부터 가능해요 / 정시에 컷씬 스킵하고 바로 시작해요">' + escapeHtml(draftNote) + '</textarea>';
+  html += '</div>';
+  html += '<div class="row-between" style="margin-top:14px;">';
+  html += '<button class="btn btn-ghost" data-action="clear-draft">모두 지우기</button>';
+  html += '<button class="btn btn-primary" data-action="save-availability"' + (isSaving?' disabled':'') + '>' + (isSaving ? '<span class="spinner"></span>저장 중…' : '저장하기') + '</button>';
+  html += '</div>';
+  html += '</div>';
+
+  html += '<div class="card">';
+  var names = participantNames();
+  html += '<h2 class="section-title">제출한 공대원 (' + names.length + '명)</h2>';
+  if(names.length === 0){
+    html += '<div class="empty-note">아직 아무도 시간을 입력하지 않았어요. 첫 번째로 입력해보세요!</div>';
+  }else{
+    html += '<div class="people-list">';
+    for(var i=0;i<names.length;i++){
+      var me = names[i] === myName ? " me" : "";
+      var note = (STATE.people[names[i]] && STATE.people[names[i]].note) || "";
+      html += '<div class="person-row">';
+      html += '<span class="chip' + me + '">' + escapeHtml(names[i]) + '</span>';
+      if(note){
+        html += '<span class="note-text">' + escapeHtml(note) + '</span>';
+      }else{
+        html += '<span class="note-text empty">특이사항 없음</span>';
+      }
+      html += '</div>';
+    }
+    html += '</div>';
+  }
+  html += '</div>';
+  return html;
+}
+
+function topCandidates(limit){
+  var counts = countsPerSlot();
+  var arr = Object.keys(counts).map(function(k){ return {slot:k, count:counts[k]}; });
+  arr.sort(function(a,b){ return b.count - a.count || a.slot.localeCompare(b.slot); });
+  return arr.slice(0, limit);
+}
+
+function renderHeatTab(){
+  var pc = participantCount();
+  var counts = countsPerSlot();
+  var html = '<div class="card">';
+  html += '<h2 class="section-title">모두의 가능 시간</h2>';
+  if(pc === 0){
+    html += '<p class="hint">아직 제출된 시간이 없어요. "내 시간 입력" 탭에서 먼저 시간을 등록해주세요.</p>';
+    html += '<div class="empty-note">데이터가 쌓이면 여기에 겹치는 시간이 진한 색으로 표시돼요.</div>';
+  }else{
+    html += '<p class="hint">색이 진할수록 더 많은 인원이 가능한 시간이에요. 금색 테두리는 전원이 가능한 시간이에요.</p>';
+    html += renderGridMarkup({
+      id: "heat-grid",
+      cellDecorator: function(id){
+        var c = counts[id] || 0;
+        var ratio = c / pc;
+        var cls = "";
+        var style = "";
+        var inner = "";
+        if(c > 0){
+          var lo = cssVar("--heat-low") || "#cfe0ee";
+          var hi = cssVar("--heat-high") || "#d8672e";
+          style = "background:" + heatColor(ratio, lo, hi) + ";";
+        }
+        if(c === pc && pc > 0){ cls = "full"; style += "outline:2px solid var(--full-ring);outline-offset:-2px;"; }
+        var title = formatSlot(id) + " — " + c + "/" + pc + "명 가능";
+        if(c>0){ title += ": " + namesForSlot(id).join(", "); }
+        return { className: cls, style: style, inner: inner, title: title };
+      }
+    });
+    html += '<div class="legend"><span>0명</span><span class="legend-bar"></span><span>전원(' + pc + '명)</span></div>';
+    html += '<div class="tooltip-panel" id="hover-info">' + (hoverInfoHtml || '칸에 마우스를 올리면(모바일은 눌러보면) 누가 가능한지 보여드려요.') + '</div>';
+  }
+  html += '</div>';
+
+  if(pc > 0){
+    html += '<div class="card">';
+    html += '<h2 class="section-title">공통 시간 후보 Top 5</h2>';
+    var top = topCandidates(5).filter(function(x){ return x.count > 0; });
+    if(top.length === 0){
+      html += '<div class="empty-note">아직 겹치는 시간이 없어요.</div>';
+    }else{
+      html += '<div class="rankbox">';
+      for(var i=0;i<top.length;i++){
+        html += '<div class="rank-item"><span>' + escapeHtml(formatSlot(top[i].slot)) + '</span><span><b>' + top[i].count + '</b>/' + pc + '명</span></div>';
+      }
+      html += '</div>';
+    }
+    html += '<div style="margin-top:14px;">';
+    if(STATE.vote && !STATE.vote.finalized){
+      html += '<p class="hint" style="margin-bottom:8px;">이미 진행 중인 투표가 있어요.</p>';
+      html += '<button class="btn btn-ghost" data-action="set-tab" data-tab="vote">투표 보러 가기</button>';
+    }else if(!candidatePickerOpen){
+      html += '<button class="btn btn-primary" data-action="open-candidate-picker">이 시간들로 투표 만들기</button>';
+    }else{
+      html += renderCandidatePicker();
+    }
+    html += '</div>';
+    html += '</div>';
+  }
+  return html;
+}
+
+function renderCandidatePicker(){
+  var html = '<div>';
+  html += '<p class="hint">투표에 올릴 시간을 골라주세요 (인원이 많이 겹치는 시간이 미리 선택돼 있어요).</p>';
+  html += renderGridMarkup({
+    id: "cand-grid",
+    cellDecorator: function(id){
+      var c = countsPerSlot()[id] || 0;
+      var pc = participantCount();
+      var ratio = pc ? c/pc : 0;
+      var style = c>0 ? "background:" + heatColor(ratio, cssVar("--heat-low")||"#cfe0ee", cssVar("--heat-high")||"#d8672e") + ";" : "";
+      var cls = candidateDraft.indexOf(id) !== -1 ? "candidate" : "";
+      return { className: cls, style: style, title: formatSlot(id) + " (" + c + "/" + pc + ")" };
+    }
+  });
+  html += '<div class="row-between" style="margin-top:12px;">';
+  html += '<button class="btn btn-ghost" data-action="close-candidate-picker">취소</button>';
+  html += '<button class="btn btn-primary" data-action="start-vote"' + (isSaving?' disabled':'') + '>' + (isSaving?'<span class="spinner"></span>만드는 중…':'투표 시작하기 (' + candidateDraft.length + '개)') + '</button>';
+  html += '</div>';
+  html += '</div>';
+  return html;
+}
+
+function tally(vote){
+  var counts = {};
+  (vote.candidates||[]).forEach(function(c){ counts[c] = 0; });
+  Object.keys(vote.ballots||{}).forEach(function(name){
+    (vote.ballots[name]||[]).forEach(function(c){ if(counts[c] !== undefined) counts[c]++; });
+  });
+  return counts;
+}
+
+function renderVoteTab(){
+  var html = "";
+  var vote = STATE.vote;
+  if(!vote){
+    html += '<div class="card">';
+    html += '<h2 class="section-title">투표</h2>';
+    html += '<p class="hint">아직 투표가 시작되지 않았어요. "종합 현황" 탭에서 겹치는 시간이 모이면 투표를 만들 수 있어요.</p>';
+    html += '<button class="btn btn-ghost" data-action="set-tab" data-tab="heat">종합 현황 보러 가기</button>';
+    html += '</div>';
+    return html;
+  }
+  var counts = tally(vote);
+  var maxCount = Math.max.apply(null, Object.keys(counts).map(function(k){return counts[k];}).concat([0]));
+  var ballotCount = Object.keys(vote.ballots||{}).length;
+  var pc = participantCount();
+  var myBallot = (vote.ballots && vote.ballots[myName]) || [];
+
+  html += '<div class="card">';
+  if(vote.finalized){
+    html += '<h2 class="section-title">투표 결과</h2>';
+    html += '<p class="hint">레이드 시간이 확정됐어요: <b>' + escapeHtml(formatSlot(vote.finalized.slot)) + '</b></p>';
+  }else{
+    html += '<h2 class="section-title">레이드 시간 투표</h2>';
+    html += '<p class="hint">가능한 시간을 모두 선택해주세요 (여러 개 선택 가능). 투표 참여 ' + ballotCount + '/' + pc + '명.</p>';
+  }
+  html += '<div class="cand-list">';
+  vote.candidates.forEach(function(slot){
+    var c = counts[slot] || 0;
+    var pct = maxCount>0 ? Math.round((c/maxCount)*100) : 0;
+    var checked = myBallot.indexOf(slot) !== -1;
+    var isLeader = vote.finalized ? vote.finalized.slot === slot : (maxCount>0 && c===maxCount);
+    html += '<div class="cand-row">';
+    if(!vote.finalized){
+      html += '<label class="check-row"><input type="checkbox" data-action="toggle-ballot" data-slot="' + slot + '"' + (checked?' checked':'') + '><span class="label">' + escapeHtml(formatSlot(slot)) + '</span>';
+      html += '<span class="cand-bar-track"><span class="cand-bar-fill" style="width:' + pct + '%;' + (isLeader?'opacity:1':'opacity:.6') + '"></span></span>';
+      html += '<span class="count">' + c + '명</span></label>';
+      html += '<button class="btn btn-ghost finalize-btn" data-action="finalize-vote" data-slot="' + slot + '">확정</button>';
+    }else{
+      html += '<span class="label">' + escapeHtml(formatSlot(slot)) + '</span>';
+      html += '<span class="cand-bar-track"><span class="cand-bar-fill" style="width:' + pct + '%;"></span></span>';
+      html += '<span class="count">' + c + '명</span>';
+    }
+    html += '</div>';
+  });
+  html += '</div>';
+  if(!vote.finalized){
+    html += '<div class="row-between" style="margin-top:14px;">';
+    html += '<button class="btn btn-danger-ghost" data-action="cancel-vote">투표 취소</button>';
+    html += '<button class="btn btn-primary" data-action="submit-ballot"' + (isSaving?' disabled':'') + '>' + (isSaving?'<span class="spinner"></span>제출 중…':'내 투표 제출') + '</button>';
+    html += '</div>';
+  }else{
+    html += '<div style="margin-top:14px;"><button class="btn btn-ghost" data-action="cancel-vote">새 투표 시작하기</button></div>';
+  }
+  html += '</div>';
+  return html;
+}
+
+function render(){
+  var app = document.getElementById("app");
+  var activeId = document.activeElement && document.activeElement.id;
+  var selStart, selEnd;
+  if(activeId === "note-input"){
+    try{
+      selStart = document.activeElement.selectionStart;
+      selEnd = document.activeElement.selectionEnd;
+    }catch(e){}
+  }
+  if(!myName){
+    app.innerHTML = renderNameGate();
+    bindNameGateEvents();
+    return;
+  }
+  var html = '<div class="wrap"><div class="topbar">' + renderTopbar() + '</div><main>';
+  if(currentTab === "input") html += renderInputTab();
+  else if(currentTab === "heat") html += renderHeatTab();
+  else html += renderVoteTab();
+  html += '</main></div>';
+  app.innerHTML = html;
+  bindMainEvents();
+  if(activeId){
+    var el = document.getElementById(activeId);
+    if(el){
+      el.focus();
+      if(selStart != null && el.setSelectionRange){ try{ el.setSelectionRange(selStart, selEnd); }catch(e){} }
+    }
+  }
+}
+
+function bindNameGateEvents(){
+  var form = document.getElementById("name-form");
+  if(!form) return;
+  form.addEventListener("submit", function(ev){
+    ev.preventDefault();
+    var input = document.getElementById("name-input");
+    onNameSubmit(input.value);
+  });
+}
+
+function bindMainEvents(){
+  var app = document.getElementById("app");
+  app.addEventListener("click", handleDelegatedClick);
+  app.addEventListener("change", handleDelegatedChange);
+
+  var inputGrid = document.getElementById("input-grid");
+  if(inputGrid){
+    bindGridDrag(inputGrid, function(slot, willSelect, cell){
+      toggleDraftSlot(slot, willSelect);
+      cell.classList.toggle("selected", willSelect);
+    });
+  }
+  var candGrid = document.getElementById("cand-grid");
+  if(candGrid){
+    bindGridDrag(candGrid, function(slot, willSelect, cell){
+      var idx = candidateDraft.indexOf(slot);
+      if(willSelect && idx===-1) candidateDraft.push(slot);
+      if(!willSelect && idx!==-1) candidateDraft.splice(idx,1);
+      cell.classList.toggle("candidate", willSelect);
+      var btn = document.querySelector('[data-action="start-vote"]');
+      if(btn) btn.textContent = "투표 시작하기 (" + candidateDraft.length + "개)";
+    });
+  }
+  var heatGrid = document.getElementById("heat-grid");
+  if(heatGrid){
+    heatGrid.addEventListener("mousemove", handleHeatHover);
+    heatGrid.addEventListener("click", handleHeatHover);
+  }
+  var noteInput = document.getElementById("note-input");
+  if(noteInput){
+    noteInput.addEventListener("input", function(){
+      draftNote = noteInput.value;
+      saveDraftNoteLocal();
+    });
+  }
+}
+
+function handleHeatHover(ev){
+  var cell = ev.target.closest ? ev.target.closest(".g-cell") : null;
+  if(!cell) return;
+  var slot = cell.getAttribute("data-slot");
+  var pc = participantCount();
+  var names = namesForSlot(slot);
+  var panel = document.getElementById("hover-info");
+  if(!panel) return;
+  if(names.length === 0){
+    panel.innerHTML = escapeHtml(formatSlot(slot)) + ' — 아직 가능한 사람이 없어요.';
+  }else{
+    panel.innerHTML = escapeHtml(formatSlot(slot)) + ' — <span class="cnt">' + names.length + '/' + pc + '명</span> 가능: ' + names.map(escapeHtml).join(", ");
+  }
+}
+
+function handleDelegatedChange(ev){
+  var el = ev.target;
+  if(el.getAttribute && el.getAttribute("data-action") === "toggle-ballot"){
+    var slot = el.getAttribute("data-slot");
+    var idx = pendingBallot().indexOf(slot);
+    var list = pendingBallot();
+    if(el.checked && idx===-1) list.push(slot);
+    if(!el.checked && idx!==-1) list.splice(idx,1);
+    setPendingBallot(list);
+  }
+}
+
+var _pendingBallot = null;
+function pendingBallot(){
+  if(_pendingBallot === null){
+    _pendingBallot = ((STATE.vote && STATE.vote.ballots && STATE.vote.ballots[myName]) || []).slice();
+  }
+  return _pendingBallot;
+}
+function setPendingBallot(list){ _pendingBallot = list; }
+
+function handleDelegatedClick(ev){
+  var el = ev.target.closest ? ev.target.closest("[data-action]") : null;
+  if(!el) return;
+  var action = el.getAttribute("data-action");
+  if(action === "set-tab"){ setTab(el.getAttribute("data-tab")); }
+  else if(action === "change-name"){ onChangeName(); }
+  else if(action === "clear-draft"){ doClearAvailability(); }
+  else if(action === "save-availability"){ doSaveAvailability(); }
+  else if(action === "open-candidate-picker"){
+    candidatePickerOpen = true;
+    var top = topCandidates(8).filter(function(x){return x.count>0;});
+    var maxC = top.length ? top[0].count : 0;
+    candidateDraft = top.filter(function(x){ return x.count === maxC; }).map(function(x){return x.slot;});
+    if(candidateDraft.length === 0 && top.length){ candidateDraft = [top[0].slot]; }
+    render();
+  }
+  else if(action === "close-candidate-picker"){ candidatePickerOpen = false; render(); }
+  else if(action === "start-vote"){ doStartVote(); }
+  else if(action === "submit-ballot"){ doSubmitBallot(); }
+  else if(action === "cancel-vote"){ doCancelVote(); }
+  else if(action === "finalize-vote"){ doFinalizeVote(el.getAttribute("data-slot")); }
+}
+
+async function removeMyBallotIfAny(){
+  if(STATE.vote && STATE.vote.ballots && Object.prototype.hasOwnProperty.call(STATE.vote.ballots, myName)){
+    try{
+      var field = "ballots." + myName;
+      var patch = {};
+      patch[field] = deleteField();
+      await updateDoc(doc(db,"meta","vote"), patch);
+    }catch(e){ console.error(e); }
+  }
+}
+
+async function doSaveAvailability(){
+  if(isSaving) return;
+  isSaving = true; render();
+  var slots = draftSlots.slice().sort();
+  var note = (draftNote || "").trim().slice(0,200);
+  try{
+    if(slots.length === 0 && !note){
+      await deleteDoc(doc(db,"people",myName));
+      await removeMyBallotIfAny();
+    }else{
+      await setDoc(doc(db,"people",myName), { name: myName, slots: slots, note: note, updatedAt: serverTimestamp() });
+    }
+    clearDraftLocal();
+  }catch(err){
+    console.error(err);
+    showToast("저장 중 문제가 생겼어요. 다시 시도해주세요.");
+  }
+  isSaving = false; render();
+}
+
+async function doClearAvailability(){
+  draftSlots = [];
+  draftNote = "";
+  clearDraftLocal();
+  render();
+  try{
+    await deleteDoc(doc(db,"people",myName));
+    await removeMyBallotIfAny();
+  }catch(err){ console.error(err); }
+}
+
+async function doStartVote(){
+  if(candidateDraft.length === 0){ showToast("투표에 올릴 시간을 한 개 이상 선택해주세요."); return; }
+  isSaving = true; render();
+  try{
+    await setDoc(doc(db,"meta","vote"), {
+      candidates: candidateDraft.slice().sort(),
+      ballots: {},
+      finalized: null,
+      createdAt: serverTimestamp()
+    });
+    candidatePickerOpen = false;
+    currentTab = "vote";
+  }catch(err){
+    console.error(err);
+    showToast("투표를 만들지 못했어요.");
+  }
+  isSaving = false; render();
+}
+
+async function doSubmitBallot(){
+  if(!STATE.vote) return;
+  isSaving = true; render();
+  try{
+    await setDoc(doc(db,"meta","vote"), { ballots: (function(){ var o={}; o[myName]=pendingBallot().slice(); return o; })() }, { merge: true });
+    showToast("투표를 제출했어요.");
+  }catch(err){
+    console.error(err);
+    showToast("투표 제출에 실패했어요.");
+  }
+  isSaving = false; render();
+}
+
+async function doCancelVote(){
+  isSaving = true; render();
+  try{
+    await deleteDoc(doc(db,"meta","vote"));
+    _pendingBallot = null;
+  }catch(err){ console.error(err); }
+  isSaving = false; render();
+}
+
+async function doFinalizeVote(slot){
+  isSaving = true; render();
+  try{
+    await updateDoc(doc(db,"meta","vote"), { finalized: { slot: slot, decidedAt: new Date().toISOString() } });
+  }catch(err){
+    console.error(err);
+    showToast("확정에 실패했어요.");
+  }
+  isSaving = false; render();
+}
+
+if(myName){ draftSlots = loadDraft(); draftNote = loadDraftNote(); }
+render();
+
+})();
+
+</script>
+</body>
+</html>
