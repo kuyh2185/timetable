@@ -13,6 +13,7 @@
   --accent-ink:#ffffff;
   --heat-low:#cfe0ee;
   --heat-high:#d8672e;
+  --full-color:#f4d128;
   --full-ring:#b8842e;
   --danger:#b3432f;
   --shadow:0 1px 2px rgba(28,33,48,.06),0 8px 24px -12px rgba(28,33,48,.18);
@@ -34,6 +35,7 @@
     --accent-ink:#1c1404;
     --heat-low:#28394c;
     --heat-high:#e8703a;
+    --full-color:#ffe14d;
     --full-ring:#d7a339;
     --danger:#e2725a;
     --shadow:0 1px 2px rgba(0,0,0,.3),0 12px 28px -14px rgba(0,0,0,.6);
@@ -52,6 +54,7 @@
   --accent-ink:#1c1404;
   --heat-low:#28394c;
   --heat-high:#e8703a;
+  --full-color:#ffe14d;
   --full-ring:#d7a339;
   --danger:#e2725a;
   --shadow:0 1px 2px rgba(0,0,0,.3),0 12px 28px -14px rgba(0,0,0,.6);
@@ -180,13 +183,17 @@ input[type="text"]:focus{outline:2px solid var(--accent);outline-offset:1px;}
 .g-daylabel{
   font-size:12px;font-weight:700;color:var(--text-dim);
   text-align:center;padding-block:4px;
+  display:flex;flex-direction:column;align-items:center;gap:1px;
 }
+.g-daylabel .date{font-size:10px;font-weight:500;color:var(--text-dim);opacity:.75;}
 .g-hourlabel{
   font-size:11px;color:var(--text-dim);
   display:flex;align-items:center;justify-content:flex-end;
   padding-right:5px;
   font-variant-numeric:tabular-nums;
 }
+.g-hourlabel.nextday{color:var(--accent-strong);font-style:italic;}
+.g-hourlabel.nextday-start,.g-cell.nextday-start{border-top:2px dashed var(--accent);}
 .g-cell{
   height:34px;border-radius:5px;background:var(--surface-2);
   border:1px solid var(--border);cursor:pointer;position:relative;
@@ -203,6 +210,11 @@ input[type="text"]:focus{outline:2px solid var(--accent);outline-offset:1px;}
   height:10px;width:120px;border-radius:6px;
   background:linear-gradient(90deg,var(--surface-2),var(--heat-low),var(--heat-high));
   border:1px solid var(--border);
+}
+.legend-swatch{
+  display:inline-block;width:10px;height:10px;border-radius:3px;
+  background:var(--full-color);border:1px solid var(--full-ring);
+  margin-right:5px;vertical-align:-1px;
 }
 .chiprow{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px;}
 .chip{
@@ -272,6 +284,34 @@ label.check-row{display:flex;align-items:center;gap:10px;cursor:pointer;flex:1;m
 .rankbox{display:flex;flex-direction:column;gap:6px;margin-top:8px;}
 .rank-item{display:flex;justify-content:space-between;font-size:13.5px;padding:6px 10px;background:var(--surface-2);border-radius:var(--radius-sm);}
 .rank-item b{color:var(--accent-strong);}
+.suggest-banner{
+  display:flex;gap:10px;align-items:flex-start;
+  background:var(--surface-2);border:1px solid var(--accent);
+  border-radius:var(--radius-sm);padding:10px 12px;margin-top:12px;
+  font-size:13px;color:var(--text);line-height:1.5;
+}
+.suggest-banner .ic{flex-shrink:0;font-size:15px;}
+.week-banner{
+  display:flex;align-items:center;justify-content:space-between;gap:10px;
+  font-size:12.5px;color:var(--text-dim);flex-wrap:wrap;
+  padding-block:2px 2px;
+}
+.week-banner b{color:var(--text);font-weight:700;}
+.host-card{
+  margin-top:10px;background:var(--surface-2);border:1px solid var(--border);
+  border-radius:var(--radius-sm);padding:12px;
+}
+.host-card.danger{border-color:var(--danger);}
+.host-card p{margin:0 0 10px;font-size:13px;color:var(--text-dim);line-height:1.5;}
+.host-card .danger-text{color:var(--danger);font-weight:700;}
+input[type="password"],input[type="date"]{
+  border:1px solid var(--border);background:var(--surface);color:var(--text);
+  border-radius:var(--radius-sm);padding:9px 11px;font-size:14px;font-family:inherit;
+  width:100%;margin-bottom:10px;
+}
+input[type="password"]:focus,input[type="date"]:focus{outline:2px solid var(--accent);outline-offset:1px;}
+.btn-danger{background:var(--danger);color:#fff;}
+.btn-danger:hover:not([disabled]){opacity:.9;}
 @media (max-width:420px){
   .brand{font-size:22px;}
   .cand-row .label{width:78px;font-size:12.5px;}
@@ -304,11 +344,16 @@ var db = getFirestore(fbApp);
 (function(){
 "use strict";
 
-var DAYS = ["월","화","수","목","금","토","일"];
+var DAYS = ["수","목","금","토","일","월","화"];
 var HOUR_STEP = 2;
-var BLOCKS = 24 / HOUR_STEP;
+var HOUR_START = 6;
+var HOUR_END = 30;
+var BLOCKS = (HOUR_END - HOUR_START) / HOUR_STEP;
 var NAME_KEY = "raidPlannerName_v1";
 var DRAFT_PREFIX = "raidPlannerDraft_v2:";
+var HOST_UNLOCK_KEY = "raidPlannerHostUnlocked_v1";
+var HOST_PIN = "2032";
+var DISCORD_WEBHOOK_URL = "";
 
 function slotId(d,h){ return "d" + d + "h" + h; }
 function parseSlot(id){
@@ -319,8 +364,37 @@ function parseSlot(id){
 function normalizeSlot(id){
   var p = parseSlot(id);
   if(!p) return null;
-  var h2 = Math.floor(p.h / HOUR_STEP) * HOUR_STEP;
+  if(p.d < 0 || p.d > 6) return null;
+  if(p.h < HOUR_START || p.h >= HOUR_END) return null;
+  var rel = p.h - HOUR_START;
+  var h2 = HOUR_START + Math.floor(rel / HOUR_STEP) * HOUR_STEP;
   return slotId(p.d, h2);
+}
+
+function pad2(n){ return (n<10?"0":"") + n; }
+function isoDateOnly(d){ return d.getFullYear() + "-" + pad2(d.getMonth()+1) + "-" + pad2(d.getDate()); }
+function parseISODate(s){
+  var parts = String(s||"").split("-");
+  return new Date(parseInt(parts[0],10), parseInt(parts[1],10)-1, parseInt(parts[2],10));
+}
+function addDays(d,n){ var r = new Date(d.getTime()); r.setDate(r.getDate()+n); return r; }
+function computeMostRecentWednesday(d){ var dow = d.getDay(); var diff = (dow - 3 + 7) % 7; return addDays(d, -diff); }
+function computeUpcomingWednesday(d){ var dow = d.getDay(); var diff = (3 - dow + 7) % 7; return addDays(d, diff); }
+function getWeekStartDate(){
+  var iso = (STATE.week && STATE.week.startDate) || null;
+  if(iso){
+    try{ return parseISODate(iso); }catch(e){}
+  }
+  return computeMostRecentWednesday(new Date());
+}
+function dateLabelForDay(d){
+  var dt = addDays(getWeekStartDate(), d);
+  return (dt.getMonth()+1) + "/" + dt.getDate();
+}
+function weekRangeLabel(){
+  var start = getWeekStartDate();
+  var end = addDays(start, 6);
+  return DAYS[0] + " " + (start.getMonth()+1) + "/" + start.getDate() + " ~ " + DAYS[6] + " " + (end.getMonth()+1) + "/" + end.getDate();
 }
 function normalizeSlotList(list){
   var seen = {};
@@ -334,7 +408,10 @@ function normalizeSlotList(list){
 function formatSlot(id){
   var p = parseSlot(id);
   if(!p) return id;
-  return DAYS[p.d] + "요일 " + p.h + "~" + (p.h + HOUR_STEP) + "시";
+  var isNextDay = p.h >= 24;
+  var dispH = isNextDay ? p.h - 24 : p.h;
+  var suffix = isNextDay ? " (다음날 새벽)" : "";
+  return DAYS[p.d] + "(" + dateLabelForDay(p.d) + ") " + dispH + "~" + (dispH + HOUR_STEP) + "시" + suffix;
 }
 function escapeHtml(s){
   return String(s == null ? "" : s).replace(/[&<>"']/g, function(c){
@@ -347,7 +424,7 @@ function sanitizeName(name){
   return name;
 }
 
-var STATE = { people: {}, vote: null };
+var STATE = { people: {}, vote: null, week: null };
 var myName = null;
 try{ myName = localStorage.getItem(NAME_KEY); }catch(e){ myName = null; }
 
@@ -359,6 +436,17 @@ var candidatePickerOpen = false;
 var candidateDraft = [];
 var hoverInfoHtml = "";
 var connError = false;
+
+var hostUnlocked = false;
+try{ hostUnlocked = localStorage.getItem(HOST_UNLOCK_KEY) === "1"; }catch(e){ hostUnlocked = false; }
+var hostMenuOpen = false;
+var pendingHostAction = null;
+var pinError = null;
+var resetWeekConfirmOpen = false;
+var resetWeekDateValue = "";
+var isResetting = false;
+var pendingFinalizeConfirm = null;
+var pendingSaveConfirm = false;
 
 function participantNames(){ return Object.keys(STATE.people || {}); }
 function participantCount(){ return participantNames().length; }
@@ -475,9 +563,18 @@ onSnapshot(doc(db,"meta","vote"), function(snap){
   console.error("vote snapshot error", err);
 });
 
+onSnapshot(doc(db,"meta","week"), function(snap){
+  STATE.week = snap.exists() ? snap.data() : null;
+  render();
+}, function(err){
+  console.error("week snapshot error", err);
+});
+
 function setTab(tab){
   currentTab = tab;
   candidatePickerOpen = false;
+  pendingFinalizeConfirm = null;
+  pendingSaveConfirm = false;
   hoverInfoHtml = "";
   render();
 }
@@ -504,6 +601,29 @@ function toggleDraftSlot(slot, forceState){
   if(willSelect && idx === -1) draftSlots.push(slot);
   if(!willSelect && idx !== -1) draftSlots.splice(idx,1);
   saveDraftLocal();
+  pendingSaveConfirm = false;
+}
+
+function wouldKeepFullOverlap(candidateSlots){
+  var names = Object.keys(STATE.people);
+  var simPc = 0;
+  var counts = {};
+  names.forEach(function(n){
+    if(n === myName) return;
+    var slots = (STATE.people[n] && STATE.people[n].slots) || [];
+    simPc++;
+    slots.forEach(function(s){ counts[s] = (counts[s]||0) + 1; });
+  });
+  if(candidateSlots.length > 0){
+    simPc++;
+    candidateSlots.forEach(function(s){ counts[s] = (counts[s]||0) + 1; });
+  }
+  if(simPc <= 1) return true;
+  var keys = Object.keys(counts);
+  for(var i=0;i<keys.length;i++){
+    if(counts[keys[i]] === simPc) return true;
+  }
+  return false;
 }
 
 function bindGridDrag(gridEl, onToggle){
@@ -552,14 +672,18 @@ function renderGridMarkup(opts){
   var html = '<div class="grid-scroll"><div class="grid" id="' + opts.id + '">';
   html += '<div class="g-corner"></div>';
   for(var d=0; d<7; d++){
-    html += '<div class="g-daylabel">' + DAYS[d] + '</div>';
+    html += '<div class="g-daylabel">' + DAYS[d] + '<span class="date">' + escapeHtml(dateLabelForDay(d)) + '</span></div>';
   }
   for(var bi=0; bi<BLOCKS; bi++){
-    var h = bi * HOUR_STEP;
-    html += '<div class="g-hourlabel">' + h + '~' + (h+HOUR_STEP) + '</div>';
+    var h = HOUR_START + bi * HOUR_STEP;
+    var isNextDay = h >= 24;
+    var isNextDayStart = h === 24;
+    var dispH = isNextDay ? h - 24 : h;
+    var hourLabelCls = "g-hourlabel" + (isNextDay ? " nextday" : "") + (isNextDayStart ? " nextday-start" : "");
+    html += '<div class="' + hourLabelCls + '">' + dispH + '~' + (dispH+HOUR_STEP) + '</div>';
     for(var d2=0; d2<7; d2++){
       var id = slotId(d2,h);
-      var cls = "g-cell";
+      var cls = "g-cell" + (isNextDayStart ? " nextday-start" : "");
       var style = "";
       var inner = "";
       var title = "";
@@ -596,6 +720,31 @@ function renderTopbar(){
   html += '</div>';
   return html;
 }
+
+function renderHostArea(){
+  var html = '<div class="week-banner"><span>이번 주 <b>' + escapeHtml(weekRangeLabel()) + '</b></span><button class="linklike" data-action="toggle-host-menu">방장 메뉴</button></div>';
+  if(pendingHostAction){
+    html += '<div class="host-card">';
+    html += '<p>이 작업을 하려면 방장 비밀번호를 입력해주세요.</p>';
+    html += '<input type="password" id="host-pin-input" placeholder="비밀번호" autocomplete="off">';
+    if(pinError){ html += '<p class="danger-text" style="font-size:12.5px;margin:-4px 0 10px;">' + escapeHtml(pinError) + '</p>'; }
+    html += '<div class="row-between"><button class="btn btn-ghost" data-action="cancel-host-pin">취소</button><button class="btn btn-primary" data-action="submit-host-pin">확인</button></div>';
+    html += '</div>';
+  }else if(hostMenuOpen){
+    html += '<div class="host-card' + (resetWeekConfirmOpen ? ' danger' : '') + '">';
+    if(!resetWeekConfirmOpen){
+      html += '<p>매주 새로 시작할 때, 지난 응답과 투표를 모두 지우고 이번 주 날짜를 다시 설정해요.</p>';
+      html += '<div class="row-between"><button class="btn btn-ghost" data-action="close-host-menu">닫기</button><button class="btn btn-ghost" data-action="open-reset-week">새 주 시작하기</button></div>';
+    }else{
+      html += '<p class="danger-text">정말 새로 시작할까요? 지금까지 제출된 시간표와 투표가 모두 삭제돼요.</p>';
+      html += '<label style="font-size:12.5px;color:var(--text-dim);display:block;margin-bottom:6px;">이번 주 ' + escapeHtml(DAYS[0]) + '요일 날짜</label>';
+      html += '<input type="date" id="reset-week-date" value="' + escapeHtml(resetWeekDateValue) + '">';
+      html += '<div class="row-between"><button class="btn btn-ghost" data-action="cancel-reset-week"' + (isResetting?' disabled':'') + '>취소</button><button class="btn btn-danger" data-action="confirm-reset-week"' + (isResetting?' disabled':'') + '>' + (isResetting?'<span class="spinner"></span>초기화 중…':'모두 지우고 새로 시작') + '</button></div>';
+    }
+    html += '</div>';
+  }
+  return html;
+}
 function tabBtn(id,label,extra){
   var active = currentTab === id ? " active" : "";
   return '<button class="tab-btn' + active + '" data-action="set-tab" data-tab="' + id + '">' + label + (extra||"") + '</button>';
@@ -625,8 +774,14 @@ function renderInputTab(){
   });
   html += '<div class="note-field">';
   html += '<label for="note-input">특이사항 (선택)</label>';
-  html += '<textarea class="note-input" id="note-input" maxlength="200" placeholder="예: 5분부터 가능해요 / 정시에 컷씬 스킵하고 바로 시작해요">' + escapeHtml(draftNote) + '</textarea>';
+  html += '<textarea class="note-input" id="note-input" maxlength="200" placeholder="">' + escapeHtml(draftNote) + '</textarea>';
   html += '</div>';
+  if(pendingSaveConfirm){
+    html += '<div class="host-card">';
+    html += '<p>💡 지금 선택한 시간표로 저장하면, 모두가 함께 가능한 시간이 하나도 없어질 수 있어요.</p>';
+    html += '<div class="row-between"><button class="btn btn-ghost" data-action="cancel-save-warning">다시 선택하기</button><button class="btn btn-primary" data-action="confirm-save-warning"' + (isSaving?' disabled':'') + '>그래도 저장하기</button></div>';
+    html += '</div>';
+  }
   html += '<div class="row-between" style="margin-top:14px;">';
   html += '<button class="btn btn-ghost" data-action="clear-draft">모두 지우기</button>';
   html += '<button class="btn btn-primary" data-action="save-availability"' + (isSaving?' disabled':'') + '>' + (isSaving ? '<span class="spinner"></span>저장 중…' : '저장하기') + '</button>';
@@ -674,7 +829,7 @@ function renderHeatTab(){
     html += '<p class="hint">아직 제출된 시간이 없어요. "내 시간 입력" 탭에서 먼저 시간을 등록해주세요.</p>';
     html += '<div class="empty-note">데이터가 쌓이면 여기에 겹치는 시간이 진한 색으로 표시돼요.</div>';
   }else{
-    html += '<p class="hint">색이 진할수록 더 많은 인원이 가능한 시간이에요. 금색 테두리는 전원이 가능한 시간이에요.</p>';
+    html += '<p class="hint">색이 진할수록 더 많은 인원이 가능한 시간이에요. 노란색은 전원이 가능한 시간이에요.</p>';
     html += renderGridMarkup({
       id: "heat-grid",
       cellDecorator: function(id){
@@ -683,18 +838,21 @@ function renderHeatTab(){
         var cls = "";
         var style = "";
         var inner = "";
-        if(c > 0){
+        var isFull = c === pc && pc > 0;
+        if(isFull){
+          style = "background:" + (cssVar("--full-color") || "#f4d128") + ";";
+        }else if(c > 0){
           var lo = cssVar("--heat-low") || "#cfe0ee";
           var hi = cssVar("--heat-high") || "#d8672e";
           style = "background:" + heatColor(ratio, lo, hi) + ";";
         }
-        if(c === pc && pc > 0){ cls = "full"; style += "outline:2px solid var(--full-ring);outline-offset:-2px;"; }
+        if(isFull){ cls = "full"; style += "outline:2px solid var(--full-ring);outline-offset:-2px;"; }
         var title = formatSlot(id) + " — " + c + "/" + pc + "명 가능";
         if(c>0){ title += ": " + namesForSlot(id).join(", "); }
         return { className: cls, style: style, inner: inner, title: title };
       }
     });
-    html += '<div class="legend"><span>0명</span><span class="legend-bar"></span><span>전원(' + pc + '명)</span></div>';
+    html += '<div class="legend"><span>0명</span><span class="legend-bar"></span><span><span class="legend-swatch"></span>전원(' + pc + '명)</span></div>';
     html += '<div class="tooltip-panel" id="hover-info">' + (hoverInfoHtml || '칸에 마우스를 올리면(모바일은 눌러보면) 누가 가능한지 보여드려요.') + '</div>';
   }
   html += '</div>';
@@ -736,7 +894,10 @@ function renderCandidatePicker(){
       var c = countsPerSlot()[id] || 0;
       var pc = participantCount();
       var ratio = pc ? c/pc : 0;
-      var style = c>0 ? "background:" + heatColor(ratio, cssVar("--heat-low")||"#cfe0ee", cssVar("--heat-high")||"#d8672e") + ";" : "";
+      var isFull = c === pc && pc > 0;
+      var style = isFull
+        ? "background:" + (cssVar("--full-color") || "#f4d128") + ";"
+        : (c>0 ? "background:" + heatColor(ratio, cssVar("--heat-low")||"#cfe0ee", cssVar("--heat-high")||"#d8672e") + ";" : "");
       var cls = candidateDraft.indexOf(id) !== -1 ? "candidate" : "";
       return { className: cls, style: style, title: formatSlot(id) + " (" + c + "/" + pc + ")" };
     }
@@ -783,6 +944,14 @@ function renderVoteTab(){
     html += '<h2 class="section-title">레이드 시간 투표</h2>';
     html += '<p class="hint">가능한 시간을 모두 선택해주세요 (여러 개 선택 가능). 투표 참여 ' + ballotCount + '/' + pc + '명.</p>';
   }
+  if(pendingFinalizeConfirm && !vote.finalized){
+    var mAvail = countsPerSlot()[pendingFinalizeConfirm] || 0;
+    var mMissing = pc - mAvail;
+    html += '<div class="host-card danger">';
+    html += '<p class="danger-text">' + escapeHtml(formatSlot(pendingFinalizeConfirm)) + '은(는) 전체 참가자 ' + pc + '명 중 ' + mAvail + '명만 가능한 시간이에요. 이대로 확정하면 ' + mMissing + '명은 시간이 안 맞을 수 있어요.</p>';
+    html += '<div class="row-between"><button class="btn btn-ghost" data-action="cancel-finalize-mismatch">취소</button><button class="btn btn-danger" data-action="confirm-finalize-mismatch">그래도 확정하기</button></div>';
+    html += '</div>';
+  }
   html += '<div class="cand-list">';
   vote.candidates.forEach(function(slot){
     var c = counts[slot] || 0;
@@ -815,35 +984,41 @@ function renderVoteTab(){
   return html;
 }
 
+function captureFocusState(){
+  var active = document.activeElement;
+  if(active && (active.tagName === "INPUT" || active.tagName === "TEXTAREA") && active.id){
+    var st = { id: active.id, value: active.value, selStart: null, selEnd: null };
+    try{ st.selStart = active.selectionStart; st.selEnd = active.selectionEnd; }catch(e){}
+    return st;
+  }
+  return null;
+}
+function restoreFocusState(saved){
+  if(!saved) return;
+  var el = document.getElementById(saved.id);
+  if(!el) return;
+  if(el.type !== "date"){ el.value = saved.value; }
+  el.focus();
+  if(saved.selStart != null && el.setSelectionRange){ try{ el.setSelectionRange(saved.selStart, saved.selEnd); }catch(e){} }
+}
+
 function render(){
   var app = document.getElementById("app");
-  var activeId = document.activeElement && document.activeElement.id;
-  var selStart, selEnd;
-  if(activeId === "note-input"){
-    try{
-      selStart = document.activeElement.selectionStart;
-      selEnd = document.activeElement.selectionEnd;
-    }catch(e){}
-  }
+  var saved = captureFocusState();
   if(!myName){
     app.innerHTML = renderNameGate();
     bindNameGateEvents();
+    restoreFocusState(saved);
     return;
   }
-  var html = '<div class="wrap"><div class="topbar">' + renderTopbar() + '</div><main>';
+  var html = '<div class="wrap"><div class="topbar">' + renderTopbar() + renderHostArea() + '</div><main>';
   if(currentTab === "input") html += renderInputTab();
   else if(currentTab === "heat") html += renderHeatTab();
   else html += renderVoteTab();
   html += '</main></div>';
   app.innerHTML = html;
   bindMainEvents();
-  if(activeId){
-    var el = document.getElementById(activeId);
-    if(el){
-      el.focus();
-      if(selStart != null && el.setSelectionRange){ try{ el.setSelectionRange(selStart, selEnd); }catch(e){} }
-    }
-  }
+  restoreFocusState(saved);
 }
 
 function bindNameGateEvents(){
@@ -889,6 +1064,17 @@ function bindMainEvents(){
     noteInput.addEventListener("input", function(){
       draftNote = noteInput.value;
       saveDraftNoteLocal();
+      pendingSaveConfirm = false;
+    });
+  }
+  var pinInput = document.getElementById("host-pin-input");
+  if(pinInput){
+    pinInput.focus();
+    pinInput.addEventListener("keydown", function(ev){
+      if(ev.key === "Enter"){
+        ev.preventDefault();
+        submitHostPin();
+      }
     });
   }
 }
@@ -948,8 +1134,69 @@ function handleDelegatedClick(ev){
   else if(action === "close-candidate-picker"){ candidatePickerOpen = false; render(); }
   else if(action === "start-vote"){ doStartVote(); }
   else if(action === "submit-ballot"){ doSubmitBallot(); }
-  else if(action === "cancel-vote"){ doCancelVote(); }
-  else if(action === "finalize-vote"){ doFinalizeVote(el.getAttribute("data-slot")); }
+  else if(action === "cancel-vote"){ withHostGate({ type: "cancel-vote" }); }
+  else if(action === "finalize-vote"){ withHostGate({ type: "finalize-vote", slot: el.getAttribute("data-slot") }); }
+  else if(action === "toggle-host-menu"){ hostMenuOpen = !hostMenuOpen; resetWeekConfirmOpen = false; render(); }
+  else if(action === "close-host-menu"){ hostMenuOpen = false; resetWeekConfirmOpen = false; render(); }
+  else if(action === "open-reset-week"){ withHostGate({ type: "reset-week" }); }
+  else if(action === "cancel-reset-week"){ resetWeekConfirmOpen = false; render(); }
+  else if(action === "confirm-reset-week"){
+    var dinput = document.getElementById("reset-week-date");
+    var dval = (dinput && dinput.value) ? dinput.value : resetWeekDateValue;
+    doResetWeek(dval);
+  }
+  else if(action === "cancel-host-pin"){ pendingHostAction = null; pinError = null; render(); }
+  else if(action === "submit-host-pin"){ submitHostPin(); }
+  else if(action === "cancel-finalize-mismatch"){ pendingFinalizeConfirm = null; render(); }
+  else if(action === "confirm-finalize-mismatch"){
+    var slotToFinalize = pendingFinalizeConfirm;
+    pendingFinalizeConfirm = null;
+    if(slotToFinalize) doFinalizeVote(slotToFinalize);
+  }
+  else if(action === "cancel-save-warning"){ pendingSaveConfirm = false; render(); }
+  else if(action === "confirm-save-warning"){ doSaveAvailability(); }
+}
+
+function withHostGate(action){
+  if(hostUnlocked){ runHostAction(action); return; }
+  pendingHostAction = action;
+  pinError = null;
+  render();
+}
+
+function runHostAction(action){
+  if(action.type === "cancel-vote"){ doCancelVote(); }
+  else if(action.type === "finalize-vote"){
+    var avail = countsPerSlot()[action.slot] || 0;
+    var pc = participantCount();
+    if(avail < pc){
+      pendingFinalizeConfirm = action.slot;
+      render();
+    }else{
+      doFinalizeVote(action.slot);
+    }
+  }
+  else if(action.type === "reset-week"){
+    resetWeekConfirmOpen = true;
+    resetWeekDateValue = isoDateOnly(computeUpcomingWednesday(new Date()));
+    render();
+  }
+}
+
+function submitHostPin(){
+  var input = document.getElementById("host-pin-input");
+  var val = input ? input.value : "";
+  if(val && val === HOST_PIN){
+    hostUnlocked = true;
+    try{ localStorage.setItem(HOST_UNLOCK_KEY, "1"); }catch(e){}
+    var act = pendingHostAction;
+    pendingHostAction = null;
+    pinError = null;
+    if(act){ runHostAction(act); } else { render(); }
+  }else{
+    pinError = "비밀번호가 올바르지 않아요.";
+    render();
+  }
 }
 
 async function removeMyBallotIfAny(){
@@ -965,9 +1212,15 @@ async function removeMyBallotIfAny(){
 
 async function doSaveAvailability(){
   if(isSaving) return;
-  isSaving = true; render();
   var slots = draftSlots.slice().sort();
   var note = (draftNote || "").trim().slice(0,200);
+  if(slots.length > 0 && !pendingSaveConfirm && !wouldKeepFullOverlap(slots)){
+    pendingSaveConfirm = true;
+    render();
+    return;
+  }
+  pendingSaveConfirm = false;
+  isSaving = true; render();
   try{
     if(slots.length === 0 && !note){
       await deleteDoc(doc(db,"people",myName));
@@ -1031,6 +1284,7 @@ async function doCancelVote(){
   try{
     await deleteDoc(doc(db,"meta","vote"));
     _pendingBallot = null;
+    pendingFinalizeConfirm = null;
   }catch(err){ console.error(err); }
   isSaving = false; render();
 }
@@ -1039,11 +1293,45 @@ async function doFinalizeVote(slot){
   isSaving = true; render();
   try{
     await updateDoc(doc(db,"meta","vote"), { finalized: { slot: slot, decidedAt: new Date().toISOString() } });
+    notifyDiscordFinalized(slot);
   }catch(err){
     console.error(err);
     showToast("확정에 실패했어요.");
   }
   isSaving = false; render();
+}
+
+function notifyDiscordFinalized(slot){
+  if(!DISCORD_WEBHOOK_URL) return;
+  try{
+    fetch(DISCORD_WEBHOOK_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ content: "⚔ 레이드 시간이 확정됐어요: " + formatSlot(slot) })
+    }).catch(function(e){ console.error("discord webhook failed", e); });
+  }catch(e){ console.error(e); }
+}
+
+async function doResetWeek(dateStr){
+  isResetting = true; render();
+  try{
+    var names = Object.keys(STATE.people);
+    for(var i=0;i<names.length;i++){
+      await deleteDoc(doc(db,"people",names[i]));
+    }
+    await deleteDoc(doc(db,"meta","vote"));
+    await setDoc(doc(db,"meta","week"), { startDate: dateStr });
+    draftSlots = [];
+    draftNote = "";
+    clearDraftLocal();
+    hostMenuOpen = false;
+    resetWeekConfirmOpen = false;
+    showToast("새 주로 초기화했어요.");
+  }catch(err){
+    console.error(err);
+    showToast("초기화 중 문제가 생겼어요. 다시 시도해주세요.");
+  }
+  isResetting = false; render();
 }
 
 if(myName){ draftSlots = loadDraft(); draftNote = loadDraftNote(); }
