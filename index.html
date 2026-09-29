@@ -1300,7 +1300,7 @@ function renderHeatTab(){
   if(!loaded.people) return renderSkeleton();
   var pc = expectedCount();
   var html = '<section class="card">';
-  html += '<div class="card-head"><h2 class="section-title">모두의 가능 시간</h2><span class="count-tag">' + pc + '명 제출</span></div>';
+  html += '<div class="card-head"><h2 class="section-title">모두의 가능 시간</h2></div>';
   if(pc === 0){
     html += '<p class="hint">아직 제출된 시간이 없어요. "내 시간" 탭에서 먼저 시간을 등록해주세요.</p>';
     html += '<div class="empty-note"><span class="big" aria-hidden="true">🕯</span>시간이 모이면 여기에 겹치는 시간이 진하게 표시돼요.</div>';
