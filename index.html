@@ -1235,7 +1235,7 @@ function heatDecorator(people, weekStart, opts){
     if(opts.picked && opts.picked === id) cls.push("picked");
     if(opts.readonly) cls.push("readonly");
     var title = formatSlot(id, weekStart) + " — " + c + "/" + pc + "명 가능";
-    return { className: cls.join(" "), style: style, inner: c > 0 ? (isFull ? "★" : String(c)) : "", title: title };
+    return { className: cls.join(" "), style: style, inner: isFull ? "★" : "", title: title };
   };
 }
 
